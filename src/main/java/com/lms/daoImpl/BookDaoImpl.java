@@ -1,0 +1,205 @@
+package com.lms.daoImpl;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.lms.dao.BookDao;
+import com.lms.pojo.Book;
+import com.lms.util.DbUtil;
+
+public class BookDaoImpl implements BookDao {
+
+	@Override
+	public boolean addBook(Book book) {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		
+		try {
+			String sql = "Insert INTO books(title, author, category, isbn, publisher, total_copies, available_copies, created_at, status) " + 
+					"VALUES(?,?,?,?,?,?,?,?,?)";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setString(1, book.getTitle());
+			preparedStatement.setString(2, book.getAuthor());
+			preparedStatement.setString(3, book.getCategory());
+			preparedStatement.setString(4, book.getIsbn());
+			preparedStatement.setString(5,  book.getPublisher());
+			preparedStatement.setInt(6, book.getTotalCopies());
+			preparedStatement.setInt(7, book.getAvailableCopies());
+			preparedStatement.setDate(8, new Date(book.getCreatedAt().getTime()));
+			preparedStatement.setString(9, book.getStatus());
+			
+			int affectedRows = preparedStatement.executeUpdate();
+			return affectedRows > 0;			
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean updateBook(Book book) {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		
+		try {
+			String sql = "UPDATE books set title = ?, author = ?, category = ?, isbn = ?, publisher = ?, total_copies = ? " + 
+					"WHERE book_id = ?";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setString(1, book.getTitle());
+			preparedStatement.setString(2, book.getAuthor());
+			preparedStatement.setString(3, book.getCategory());
+			preparedStatement.setString(4, book.getIsbn());
+			preparedStatement.setString(5,  book.getPublisher());
+			preparedStatement.setInt(6, book.getTotalCopies());
+			preparedStatement.setLong(7, book.getBookId());
+			
+			int affectedRows = preparedStatement.executeUpdate();
+			return affectedRows > 0;			
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public List<Book> getAllBookList() {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		List<Book> bookList = new ArrayList<>();
+		
+		try {
+			String sql = "Select * from books order by book_id desc";
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				Book book = new Book();
+				book.setBookId(rs.getLong("book_id"));
+				book.setTitle(rs.getString("title"));
+				book.setAuthor(rs.getString("author"));
+				book.setIsbn(rs.getString("isbn"));
+				book.setCategory(rs.getString("category"));
+				book.setPublisher(rs.getString("publisher"));
+				book.setTotalCopies(rs.getInt("total_copies"));
+				book.setAvailableCopies(rs.getInt("available_copies"));
+				book.setStatus(rs.getString("status"));
+				bookList.add(book);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return bookList;
+	}
+
+	@Override
+	public List<Book> getAllBookByStatus(String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Book getBookById(long bookId) {
+		
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		try {
+			String sql = "Select * from books where book_id = ?";
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setLong(1, bookId);
+			rs = preparedStatement.executeQuery();
+			
+			while (rs.next()) {
+				Book book = new Book();
+				book.setBookId(rs.getLong("book_id"));
+				book.setTitle(rs.getString("title"));
+				book.setAuthor(rs.getString("author"));
+				book.setIsbn(rs.getString("isbn"));
+				book.setCategory(rs.getString("category"));
+				book.setPublisher(rs.getString("publisher"));
+				book.setTotalCopies(rs.getInt("total_copies"));
+				book.setAvailableCopies(rs.getInt("available_copies"));
+				book.setStatus(rs.getString("status"));
+				
+				return book;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+	}
+
+}

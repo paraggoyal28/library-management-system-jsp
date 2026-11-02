@@ -2,6 +2,7 @@ package com.lms.controller;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,9 +13,7 @@ import com.lms.pojo.User;
 import com.lms.serviceImpl.UserServiceImpl;
 
 
-/**
- * Servlet implementation class AuthenticationController
- */
+@WebServlet("/AuthenticationController")
 public class AuthenticationController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -43,8 +42,8 @@ public class AuthenticationController extends HttpServlet {
 			User user = userService.checkLogin(userName, password);
 			
 			if (user != null) {
-				System.out.print("User Found");
-				request.setAttribute("errorMessage", "");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/dashboard.jsp");
+				dispatcher.forward(request, response);
 				
 			} else {
 				request.setAttribute("errorMessage", "Invalid Username or Password");

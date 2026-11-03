@@ -1,11 +1,15 @@
 package com.lms.daoImpl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.lms.dao.UserDao;
+import com.lms.pojo.Book;
 import com.lms.pojo.User;
 import com.lms.util.DbUtil;
 
@@ -29,7 +33,6 @@ public class UserDaoImpl implements UserDao {
 					
 						if (rs.next()) {
 							User user = new User();
-							
 							user.setFirstName(rs.getString("first_name"));
 							user.setLastName(rs.getString("last_name"));
 							user.setEmail(rs.getString("email"));
@@ -54,6 +57,93 @@ public class UserDaoImpl implements UserDao {
 		
 		
 		return null;
+	}
+
+	@Override
+	public boolean addUser(User user) {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		
+		try {
+			String sql = "Insert INTO users(first_name, last_name, email, password, role, phone_no, address, created_at) " + 
+					"VALUES(?,?,?,?,?,?,?,?)";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setString(1, user.getFirstName());
+			preparedStatement.setString(2, user.getLastName());
+			preparedStatement.setString(3, user.getEmail());
+			preparedStatement.setString(4, user.getPassword());
+			preparedStatement.setString(5,  user.getRole());
+			preparedStatement.setString(6, user.getPhone_no());
+			preparedStatement.setString(7, user.getAddress());
+			preparedStatement.setDate(8, new Date(user.getCreatedAt().getTime()));
+			
+			int affectedRows = preparedStatement.executeUpdate();
+			return affectedRows > 0;			
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public List<User> getAllUserList() {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		List<User> userList = new ArrayList<>();
+		
+		try {
+			String sql = "Select * from users where role = 'READER' order by user_id desc";
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				User user = new User();
+				user.setUserId(rs.getLong("user_id"));
+				user.setFirstName(rs.getString("first_name"));
+				user.setLastName(rs.getString("last_name"));
+				user.setEmail(rs.getString("email"));
+				
+				userList.add(user);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return userList;
 	}
 	
 }

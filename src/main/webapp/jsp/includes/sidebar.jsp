@@ -8,8 +8,8 @@
             <li class="nav-item"><a class="nav-link" href="return_book.html"><i class="bi bi-arrow-left-circle"></i>Return Book</a></li>
             <li class="nav-item"><a class="nav-link" href="BookController?action=allBookList"><i class="bi bi-book"></i>Books</a></li>
             <li class="nav-item"><a class="nav-link" href="BookController?action=showAddBook"><i class="bi bi-plus-circle"></i>Add Book</a></li>
-            <li class="nav-item"><a class="nav-link" href="users.html"><i class="bi bi-people"></i>Users</a></li>
-            <li class="nav-item"><a class="nav-link" href="add_user.html"><i class="bi bi-person-plus"></i>Add User</a></li>
+            <li class="nav-item"><a class="nav-link" href="UserController?action=allUserList"><i class="bi bi-people"></i>Users</a></li>
+            <li class="nav-item"><a class="nav-link" href="UserController?action=showAddUser"><i class="bi bi-person-plus"></i>Add User</a></li>
         </ul>
     </div>
 </nav>

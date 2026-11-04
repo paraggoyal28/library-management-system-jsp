@@ -145,5 +145,91 @@ public class UserDaoImpl implements UserDao {
 		
 		return userList;
 	}
+
+	@Override
+	public User getUserById(long userId) {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		try {
+			String sql = "Select * from users where role = 'READER' and user_id = ?";
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setLong(1, userId);
+			rs = preparedStatement.executeQuery();
+			
+			while (rs.next()) {
+				User user = new User();
+				user.setUserId(rs.getLong("user_id"));
+				user.setFirstName(rs.getString("first_name"));
+				user.setLastName(rs.getString("last_name"));
+				user.setEmail(rs.getString("email"));
+				user.setAddress(rs.getString("address"));
+				user.setPhone_no(rs.getString("phone_no"));
+				
+				return user;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	public boolean updateUser(User user) {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		
+		try {
+			String sql = "UPDATE users set first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ? " + 
+					"WHERE user_id = ?";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setString(1, user.getFirstName());
+			preparedStatement.setString(2, user.getLastName());
+			preparedStatement.setString(3, user.getEmail());
+			preparedStatement.setString(4, user.getPhone_no());
+			preparedStatement.setString(5, user.getAddress());
+			preparedStatement.setLong(6, user.getUserId());
+			
+			int affectedRows = preparedStatement.executeUpdate();
+			return affectedRows > 0;			
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
 	
 }

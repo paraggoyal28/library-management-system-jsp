@@ -30,4 +30,16 @@ public class UserServiceImpl implements UserService {
 		return userDao.getAllUserList();
 	}
 
+
+	@Override
+	public User getUserById(long userId) {
+		return userDao.getUserById(userId);
+	}
+
+
+	@Override
+	public boolean updateUser(User user) {
+		return userDao.updateUser(user);
+	}
+
 }

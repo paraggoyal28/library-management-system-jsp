@@ -92,6 +92,52 @@ public class UserController extends HttpServlet {
 				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/userList.jsp");
 				dispatcher.forward(request, response);
 			} 
+		} else if ("viewUser".equalsIgnoreCase(action)) {
+			long userId = Long.parseLong(request.getParameter("userId"));
+			User user = userService.getUserById(userId);
+
+			if (user != null) {
+				request.setAttribute("user", user);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/editUser.jsp");
+				dispatcher.forward(request, response);
+			} else {
+				users = userService.getAllUserList();
+
+				if (users != null && users.size() > 0) {
+					request.setAttribute("errorMessage", "User not found!!");
+					request.setAttribute("userList", users);
+					RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/userList.jsp");
+					dispatcher.forward(request, response);
+				} 
+			}
+		} else if ("updateUser".equalsIgnoreCase(action)) {
+			String firstName = request.getParameter("firstName");
+			String lastName = request.getParameter("lastName");
+			String email = request.getParameter("email");
+			String phone = request.getParameter("phone");
+			String address = request.getParameter("address");
+
+			
+			User user = new User();
+			user.setFirstName(firstName);
+			user.setLastName(lastName);
+			user.setEmail(email);
+			user.setPhone_no(phone);
+			user.setAddress(address);
+			user.setUserId(Long.parseLong(request.getParameter("userId")));
+
+			boolean userUpdated = userService.updateUser(user);
+			
+			if (userUpdated) {
+				request.setAttribute("user", user);
+				request.setAttribute("successMessage", "User updated successfully");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/editUser.jsp");
+				dispatcher.forward(request, response);
+			} else {
+				request.setAttribute("errorMessage", "Something went wrong");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/editUser.jsp");
+				dispatcher.forward(request, response);
+			}
 		}
 		
 		else {

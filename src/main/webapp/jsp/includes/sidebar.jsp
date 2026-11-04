@@ -4,7 +4,7 @@
     <div class="position-sticky sidebar-sticky">
         <ul class="nav flex-column">
             <li class="nav-item"><a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
-			<li class="nav-item"><a class="nav-link" href="assign_book.html"><i class="bi bi-arrow-right-circle"></i>Assign Book</a></li>
+			<li class="nav-item"><a class="nav-link" href="BookController?action=showAssignBook"><i class="bi bi-arrow-right-circle"></i>Assign Book</a></li>
             <li class="nav-item"><a class="nav-link" href="return_book.html"><i class="bi bi-arrow-left-circle"></i>Return Book</a></li>
             <li class="nav-item"><a class="nav-link" href="BookController?action=allBookList"><i class="bi bi-book"></i>Books</a></li>
             <li class="nav-item"><a class="nav-link" href="BookController?action=showAddBook"><i class="bi bi-plus-circle"></i>Add Book</a></li>

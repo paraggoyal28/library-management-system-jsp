@@ -67,6 +67,12 @@ public class User {
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ", password=" + password + ", role=" + role + ", phone_no=" + phone_no + ", address=" + address
+				+ ", createdAt=" + createdAt + "]";
+	}
 	
 	
 	

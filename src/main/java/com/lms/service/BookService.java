@@ -3,6 +3,7 @@ package com.lms.service;
 import java.util.List;
 
 import com.lms.pojo.Book;
+import com.lms.pojo.BookIssued;
 
 public interface BookService {
 	public boolean addBook(Book book);
@@ -14,4 +15,10 @@ public interface BookService {
 	public List<Book> getAllBookByStatus(String status);
 
 	public Book getBookById(long bookId);
+	
+	public List<Book> getAllAvailableBookList();	
+
+	public boolean assignBook(BookIssued bookIssued);
+	
+	public boolean updateAvailableBook(long bookId, int availableCopies);
 }

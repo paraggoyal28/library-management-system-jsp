@@ -55,7 +55,7 @@
                             <td><c:out value="${user.lastName}" /></td>
                             <td><c:out value="${user.email}" /></td>
                             <td>
-                                <a href="edit_user.html" class="action-btn edit" title="Edit User"><i class="bi bi-pencil-square"></i></a>
+                                <a href="UserController?action=viewUser&userId=${user.userId}" class="action-btn edit" title="Edit User"><i class="bi bi-pencil-square"></i></a>
                                 <button class="action-btn delete" title="Delete User"><i class="bi bi-trash-fill"></i></button>
                             </td>
                         </tr>

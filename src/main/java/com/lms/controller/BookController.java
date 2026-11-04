@@ -6,12 +6,18 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.lms.pojo.Book;
+import com.lms.pojo.BookIssued;
 import com.lms.pojo.User;
 import com.lms.service.UserService;
 import com.lms.service.BookService;
@@ -41,7 +47,9 @@ public class BookController extends HttpServlet {
 		String action = request.getParameter("action");
 		System.out.println(action);
 		BookService bookService = new BookServiceImpl();
+		UserService userService = new UserServiceImpl();
 		List<Book> books = new ArrayList<>();
+		List<User> users = new ArrayList<>();
 
 		if ("showAddBook".equalsIgnoreCase(action)) {
 			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/addBook.jsp");
@@ -149,6 +157,61 @@ public class BookController extends HttpServlet {
 				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/editBook.jsp");
 				dispatcher.forward(request, response);
 			}
+		} else if ("showAssignBook".equalsIgnoreCase(action)) {
+			books = bookService.getAllAvailableBookList();
+			users = userService.getAllUserList();
+			
+			if (books != null && books.size() > 0 && users != null && users.size() > 0) {
+				request.setAttribute("bookList", books);
+				request.setAttribute("userList", users);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/assignBook.jsp");
+				dispatcher.forward(request, response);
+			} else {
+				request.setAttribute("errorMessage", "Either book or user not available. Please try again later!");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/assignBook.jsp");
+				dispatcher.forward(request, response);
+			}
+			
+		} else if ("assignBook".equalsIgnoreCase(action)) {
+			long bookId = Long.parseLong(request.getParameter("bookId"));
+			long userId = Long.parseLong(request.getParameter("userId"));
+			
+			String dueDate = request.getParameter("dueDate");
+			String assignmentNotes = request.getParameter("assignmentNotes");
+			
+			Book book = new Book();
+			book.setBookId(bookId);
+			
+			User user = new User();
+			user.setUserId(userId);
+			
+			BookIssued bookIssued = new BookIssued();
+			bookIssued.setBook(book);
+			bookIssued.setUser(user);
+
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate localDueDate = null;
+			try {
+				localDueDate = LocalDate.parse(dueDate, dateFormatter);
+				System.out.println("Parsed LocalDueDate: " + localDueDate);
+			} catch (DateTimeParseException e) {
+				System.err.println("Error parsing date: " + e.getMessage());
+			}
+			
+			bookIssued.setDueDate(localDueDate);
+			bookIssued.setAssignmentNotes(assignmentNotes);
+			
+			boolean assignFlag = bookService.assignBook(bookIssued);
+			if (assignFlag) {
+				HttpSession session = request.getSession();
+				session.setAttribute("successMessage", "Book assigned successfully!!");
+				response.sendRedirect("BookController?action=showAssignBook");
+			} else {
+				request.setAttribute("errorMessage", "Book not assigned. Please try again later !!");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/assignBook.jsp");
+				dispatcher.forward(request, response);
+			}
+		
 		}
 		else {
 			System.out.print("No action found");

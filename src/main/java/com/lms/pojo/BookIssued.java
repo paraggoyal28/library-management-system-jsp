@@ -16,6 +16,8 @@ public class BookIssued {
 	private String bookCondition;
 	private String assignmentNotes;
 	private String returnNotes;
+	private String dueDateStatus;
+	
 	public int getIssueId() {
 		return issueId;
 	}
@@ -75,6 +77,12 @@ public class BookIssued {
 	}
 	public void setReturnNotes(String returnNotes) {
 		this.returnNotes = returnNotes;
+	}
+	public String getDueDateStatus() {
+		return dueDateStatus;
+	}
+	public void setDueDateStatus(String dueDateStatus) {
+		this.dueDateStatus = dueDateStatus;
 	}
 	
 	

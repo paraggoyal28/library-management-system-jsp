@@ -42,8 +42,7 @@ public class AuthenticationController extends HttpServlet {
 			User user = userService.checkLogin(userName, password);
 			
 			if (user != null) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/dashboard.jsp");
-				dispatcher.forward(request, response);
+				response.sendRedirect("DashboardController?action=viewDashboard");
 				
 			} else {
 				request.setAttribute("errorMessage", "Invalid Username or Password");
@@ -51,8 +50,12 @@ public class AuthenticationController extends HttpServlet {
 				dispatcher.forward(request, response);
 			}
 			
+		} else if ("showLogin".equalsIgnoreCase(action)) {
+			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/login.jsp");
+			dispatcher.forward(request, response);
 		} else {
-			System.out.print("No action found.");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/error.jsp");
+			dispatcher.forward(request, response);
 		}
 		
 		

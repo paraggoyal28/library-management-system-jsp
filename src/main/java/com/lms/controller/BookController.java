@@ -212,9 +212,74 @@ public class BookController extends HttpServlet {
 				dispatcher.forward(request, response);
 			}
 		
+		} else if ("showReturnBook".equalsIgnoreCase(action)) {
+			List<BookIssued> issuedList = bookService.getAllIssuedBookList();
+			LocalDate today = LocalDate.now();
+			
+			if (issuedList != null && issuedList.size() > 0) {
+				for (BookIssued bookIssued: issuedList) {
+					LocalDate dueDate = bookIssued.getDueDate();
+					
+					if (dueDate.isBefore(today)) {
+						bookIssued.setDueDateStatus("Overdue");
+					} else if (dueDate.isEqual(today)) {
+						bookIssued.setDueDateStatus("Due Today");
+					} else {
+						bookIssued.setDueDateStatus("Active");
+					}
+				}
+				
+				request.setAttribute("issuedList", issuedList);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/returnBook.jsp");
+				dispatcher.forward(request, response);
+			}
+		} else if ("showReturnBookDetails".equalsIgnoreCase(action)) {
+			Long issuedId = Long.parseLong(request.getParameter("issuedId"));
+			BookIssued bookIssued =  bookService.getIssuedBookById(issuedId);
+			
+			if (bookIssued != null) {
+				request.setAttribute("bookIssued", bookIssued);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/showReturnBookDetails.jsp");
+				dispatcher.forward(request, response);
+			}
+		} else if ("returnBook".equalsIgnoreCase(action)) {
+			int issuedId = Integer.parseInt(request.getParameter("issuedId"));
+			String returnDate = request.getParameter("returnDate");
+			String bookCondition = request.getParameter("bookCondition");
+			String returnNotes = request.getParameter("returnNotes");
+			
+			
+			BookIssued bookIssued = new BookIssued();
+			bookIssued.setIssueId(issuedId);
+
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate localReturnDate = null;
+			
+			try {
+				localReturnDate = LocalDate.parse(returnDate, dateFormatter);
+			} catch (DateTimeParseException e) {
+				System.err.println("Error parsing date: " + e.getMessage());
+			}
+			
+			
+			bookIssued.setReturnDate(localReturnDate);
+			bookIssued.setBookCondition(bookCondition);
+			bookIssued.setReturnNotes(returnNotes);
+			
+			boolean returned = bookService.updateBookReturn(bookIssued);
+			if (returned) {
+				HttpSession session = request.getSession();
+				session.setAttribute("successMessage", "Book returned successfully!");
+				response.sendRedirect("BookController?action=showReturnBook");
+			} else {
+				HttpSession session = request.getSession();
+				session.setAttribute("errorMessage", "Something went wrong!!!");
+				response.sendRedirect("BookController?action=showReturnBook");
+			}
 		}
 		else {
-			System.out.print("No action found");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/error.jsp");
+			dispatcher.forward(request, response);
 		}
 		
 	}

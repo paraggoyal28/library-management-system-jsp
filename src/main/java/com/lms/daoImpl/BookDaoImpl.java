@@ -4,12 +4,14 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.lms.dao.BookDao;
 import com.lms.pojo.Book;
 import com.lms.pojo.BookIssued;
+import com.lms.pojo.User;
 import com.lms.util.DbUtil;
 
 public class BookDaoImpl implements BookDao {
@@ -334,15 +336,30 @@ public class BookDaoImpl implements BookDao {
 	}
 
 	@Override
-	public List<BookIssued> getAllIssuedBooks() {
+	public BookIssued getIssuedBookById(long issueId) {
 		Connection conn = null;
 		PreparedStatement preparedStatement = null;
 		ResultSet rs = null;
-		List<BookIssued> issuedList = new ArrayList<>();
+		
+		BookIssued bookIssued = null;
 		
 		try {
-		//	String sql = "SELECT bi.issue_id, bi.book_id, bi.user_id, bi.issue_date, bi.due_date, "
-		//			+ "bi.return_date, bi.status, bi.book_condition"
+			String sql = "SELECT bi.issue_id, bi.book_id, bi.user_id, bi.issue_date, bi.due_date, bi.return_date, bi.status, "
+					+ "bi.book_condition,bi.assignment_notes,bi.return_notes,b.title,b.author,b.category,b.isbn,b.publisher,b.total_copies, " 
+					+ "b.available_copies,u.first_name,u.last_name,u.email,u.phone_no FROM book_issued bi JOIN books b ON "
+					+ "bi.book_id = b.book_id JOIN users u ON bi.user_id = u.user_id "
+					+ "where bi.status = 'ISSUED' "
+					+ "and bi.issue_id = ?";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setLong(1, issueId);
+			rs = preparedStatement.executeQuery();
+			
+			while (rs.next()) {
+				bookIssued = mapIssuedRecord(rs);
+				return bookIssued;
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -362,19 +379,108 @@ public class BookDaoImpl implements BookDao {
 			}
 		}
 		
-		return issuedList;
-	}
-
-	@Override
-	public BookIssued getIssuedBookById(long issueId) {
-		// TODO Auto-generated method stub
-		return null;
+		return bookIssued;
 	}
 
 	@Override
 	public boolean updateBookReturn(BookIssued bookIssued) {
-		// TODO Auto-generated method stub
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		try {
+			String sql = "UPDATE book_issued SET return_date = ?, book_condition = ?, return_notes = ?, status = ? WHERE issue_id = ?";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			
+			preparedStatement.setDate(1, Date.valueOf(bookIssued.getReturnDate()));
+			preparedStatement.setString(2, bookIssued.getBookCondition());
+			preparedStatement.setString(3, bookIssued.getReturnNotes());
+			preparedStatement.setString(4, bookIssued.getStatus());
+			preparedStatement.setInt(5, bookIssued.getIssueId());
+			
+			int bookIssuedUpdated = preparedStatement.executeUpdate();
+			return bookIssuedUpdated > 0;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return false;
+	}
+
+	@Override
+	public List<BookIssued> getAllIssuedBookList() {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		
+		List<BookIssued> bookIssued = new ArrayList<>();
+		
+		try {
+			String sql = "SELECT bi.issue_id, bi.book_id, bi.user_id, bi.issue_date, bi.due_date, bi.return_date, bi.status, "
+					+ "bi.book_condition,bi.assignment_notes,bi.return_notes,b.title,b.author,b.category,b.isbn,b.publisher,b.total_copies, " 
+					+ "b.available_copies,u.first_name,u.last_name,u.email,u.phone_no FROM book_issued bi JOIN books b ON "
+					+ "bi.book_id = b.book_id JOIN users u ON bi.user_id = u.user_id "
+					+ "where bi.status = 'ISSUED'";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			rs = preparedStatement.executeQuery();
+			
+			while (rs.next()) {
+				bookIssued.add(mapIssuedRecord(rs));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return bookIssued;
+	}
+	
+	private BookIssued mapIssuedRecord(ResultSet rs) throws SQLException {
+		BookIssued bookIssued = new BookIssued();
+		bookIssued.setIssueId(rs.getInt("issue_id"));
+		bookIssued.setIssueDate(rs.getDate("issue_date"));
+		bookIssued.setDueDate(rs.getDate("due_date").toLocalDate());
+		bookIssued.setStatus(rs.getString("status"));
+		bookIssued.setBookCondition(rs.getString("book_condition"));
+		bookIssued.setAssignmentNotes(rs.getString("assignment_notes"));
+		bookIssued.setReturnNotes(rs.getString("return_notes"));
+		
+		Book book = new Book();
+		book.setBookId(rs.getLong("book_id"));
+		book.setTitle(rs.getString("title"));
+		book.setAuthor(rs.getString("author"));
+		book.setCategory(rs.getString("category"));
+		book.setIsbn(rs.getString("isbn"));
+		book.setPublisher(rs.getString("publisher"));
+		book.setTotalCopies(rs.getInt("total_copies"));
+		book.setAvailableCopies(rs.getInt("available_copies"));
+		bookIssued.setBook(book);
+		
+		User user = new User();
+		user.setUserId(rs.getLong("user_id"));
+		user.setFirstName(rs.getString("first_name"));
+		user.setLastName(rs.getString("last_name"));
+		user.setEmail(rs.getString("email"));
+		user.setPhone_no(rs.getString("phone_no"));
+		bookIssued.setUser(user);	
+		
+		return bookIssued;
 	}
 
 }

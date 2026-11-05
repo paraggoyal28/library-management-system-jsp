@@ -36,11 +36,13 @@
             <div class="form-floating">
                 <input type="text" class="form-control" name="username" id="username" placeholder="Username">
                 <label for="username"><i class="bi bi-person-fill me-2"></i>Username</label>
+            	<div class="text text-danger text-small" id="usernameError"></div>            
             </div>
 
             <div class="form-floating">
                 <input type="password" class="form-control" name="password" id="password" placeholder="Password">
                 <label for="password"><i class="bi bi-lock-fill me-2"></i>Password</label>
+                <div class="text text-danger text-small" id="passwordError"></div>
             </div>
 
             <div class="form-check">
@@ -72,6 +74,46 @@
             });
         });
     });
+</script>
+<script type="text/javascript">
+	function setLoginValidation() {
+		const form = document.querySelector('.login-container form');
+		
+		if (!form) {
+			return;
+		}
+		
+		form.addEventListener('submit', function(event) {
+			
+			const username = document.getElementById('username').value.trim();
+			const password = document.getElementById('password').value.trim();
+			
+			const usernameError = document.getElementById('usernameError');
+			const passwordError = document.getElementById('passwordError');
+			
+			usernameError.textContent = '';
+			passwordError.textContent = '';
+			
+			let hasError = false;
+			if (!username) {
+				usernameError.textContent = "Please enter username";
+				hasError = true;
+			}
+				
+			if (!password) {
+				passwordError.textContent = "Please enter password";
+				hasError = true;
+			} 
+			
+			if (hasError) {
+				event.preventDefault();
+			}
+		});	
+	}
+	
+	if (document.readyState == 'loading') {
+		document.addEventListener('DOMContentLoaded', setLoginValidation);
+	}
 </script>
 </body>
 </html>

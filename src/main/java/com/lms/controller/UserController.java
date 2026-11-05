@@ -141,7 +141,8 @@ public class UserController extends HttpServlet {
 		}
 		
 		else {
-			System.out.print("No action found");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/error.jsp");
+			dispatcher.forward(request, response);
 		}
 	
 	}

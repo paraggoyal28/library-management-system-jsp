@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>    
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,10 +22,10 @@
     </button>
     <div class="navbar-nav d-flex flex-row align-items-center me-3">
         <span class="text-white me-3">
-            Welcome, Admin
+            Welcome, ${user.firstName} ${user.lastName}
         </span>
         <div class="nav-item text-nowrap">
-            <a class="nav-link px-3" href="logout.jsp">Sign out</a>
+            <a class="nav-link px-3" href="AuthenticationController?action=signout">Sign out</a>
         </div>
     </div>
 </header>

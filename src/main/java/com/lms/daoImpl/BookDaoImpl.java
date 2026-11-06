@@ -483,4 +483,48 @@ public class BookDaoImpl implements BookDao {
 		return bookIssued;
 	}
 
+	@Override
+	public List<BookIssued> getAllIssuedBookListForDashboard() {
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		
+		List<BookIssued> bookIssued = new ArrayList<>();
+		
+		try {
+			String sql = "SELECT bi.issue_id, bi.book_id, bi.user_id, bi.issue_date, bi.due_date, bi.return_date, bi.status, "
+					+ "bi.book_condition,bi.assignment_notes,bi.return_notes,b.title,b.author,b.category,b.isbn,b.publisher,b.total_copies, " 
+					+ "b.available_copies,u.first_name,u.last_name,u.email,u.phone_no FROM book_issued bi JOIN books b ON "
+					+ "bi.book_id = b.book_id JOIN users u ON bi.user_id = u.user_id "
+					+ "where bi.status = 'ISSUED' LIMIT 10";
+			
+			conn = DbUtil.getConnection();
+			preparedStatement = conn.prepareStatement(sql);
+			rs = preparedStatement.executeQuery();
+			
+			while (rs.next()) {
+				bookIssued.add(mapIssuedRecord(rs));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return bookIssued;
+	}
+
 }
